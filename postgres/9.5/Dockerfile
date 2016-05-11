@@ -30,7 +30,7 @@ COPY pgtune.py /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint.sh
 
 # Environment variables that can be specified to override setting defaults:
-#INSTANCE_MEMORY: amount of memory allocated for the PostGres instance use
+#INSTANCE_MEMORY: amount of memory allocated for the PostGres instance use in MBs
 #CONNECTIONS: number of connections allowed concurrently
 #FORCE_PGTUNE: true or false, indicating whether PostGres should be tuned on startup, regardless of existing config
 

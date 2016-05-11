@@ -11,7 +11,7 @@ from os import getenv
 import math
 import shutil
 
-INSTANCE_MEMORY = int(getenv('INSTANCE_MEMORY', '1'))
+INSTANCE_MEMORY = int(getenv('INSTANCE_MEMORY', '512'))
 CONNECTIONS = int(getenv('CONNECTIONS', '200'))
 CONF_FILE = getenv('CONF_FILE', '%s/postgresql.conf' % getenv('PGDATA', '/var/lib/postgresql/data'))
 OUTPUT_FILE = getenv('OUTPUT_FILE', CONF_FILE)
@@ -70,7 +70,7 @@ def set_config(input_file, output_file_name, configs):
     # Replace temp file with original name
     shutil.move('%s_tmp' % output_file_name, output_file_name)
 
-memory_in_kb = INSTANCE_MEMORY * KB_PER_GB
+memory_in_kb = INSTANCE_MEMORY * KB_PER_MB
 
 # Keys that must be updated with units
 NEED_UNITS = ['shared_buffers', 'effective_cache_size', 'work_mem', 'maintenance_work_mem',
