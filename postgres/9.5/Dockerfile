@@ -1,4 +1,4 @@
-FROM appliedis/centos:7-gosu
+FROM appliedis/centos-gosu:7
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
 # explicitly set user/group IDs and fix locale for UTF-8 default in postgres
