@@ -21,7 +21,7 @@ RUN curl -fSL "$MARLIN_URL_BASE"/marlin-$MARLIN_VERSION-Unsafe.jar -o $CATALINA_
 	&& curl -fSL "$MARLIN_URL_BASE"/marlin-$MARLIN_VERSION-Unsafe-sun-java2d.jar -o $CATALINA_HOME/lib/marlin-$MARLIN_VERSION-Unsafe-sun-java2d.jar
 
 ENV MARLIN_OPTS "-Xbootclasspath/p:$CATALINA_HOME/lib/marlin-$MARLIN_VERSION-Unsafe-sun-java2d.jar -Xbootclasspath/a:$CATALINA_HOME/lib/marlin-$MARLIN_VERSION-Unsafe.jar -Dsun.java2d.renderer=org.marlin.pisces.PiscesRenderingEngine"
-ENV CATALINA_OPTS "$MARLIN_OPTS -server -Xms2048m -Xmx2048m -XX:NewRatio=2 -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:+UseParallelGC -XX:+UseParallelOldGC -XX:+AggressiveOpts -Duser.timezone=GMT -Djava.awt.headless=true $GS_OPTS"
+ENV CATALINA_OPTS "$MARLIN_OPTS -server -XX:NewRatio=2 -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:+UseParallelGC -XX:+UseParallelOldGC -XX:+AggressiveOpts -Duser.timezone=GMT -Djava.awt.headless=true $GS_OPTS"
 
 ENV GS_PLUGIN_LIST control-flow-plugin csw-plugin wps-plugin
 
@@ -30,3 +30,15 @@ RUN for PLUGIN in $GS_PLUGIN_LIST; \
     && unzip -o plugin.zip -d $CATALINA_HOME/webapps/geoserver/WEB-INF/lib \
     && rm plugin.zip; \
     done
+
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+
+# Standard instance memory requirement is going to be set at 2GiB
+ENV INSTANCE_MEMORY 2048
+# Set OOM_KILL to anything other than true to disable OutOfMemory process killer
+ENV OOM_KILL true
+
+EXPOSE 5432
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["catalina.sh", "run"]
