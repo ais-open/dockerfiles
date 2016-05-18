@@ -39,6 +39,6 @@ ENV INSTANCE_MEMORY 2048
 # Set OOM_KILL to anything other than true to disable OutOfMemory process killer
 ENV OOM_KILL true
 
-EXPOSE 5432
+EXPOSE 8080
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["catalina.sh", "run"]
