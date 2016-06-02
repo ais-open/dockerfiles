@@ -43,7 +43,7 @@ RUN chmod +x /docker-entrypoint.sh \
 # Standard instance memory requirement is going to be set at 2GiB
 ENV INSTANCE_MEMORY 2048
 # Set OOM_KILL to anything other than true to disable OutOfMemory process killer
-ENV OOM_KILL true
+ENV OOM_KILL false
 
 EXPOSE 8080 8009
 VOLUME ["/etc/geoserver", "/var/log/geoserver"]
