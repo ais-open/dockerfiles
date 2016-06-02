@@ -46,6 +46,7 @@ ENV INSTANCE_MEMORY 2048
 ENV OOM_KILL true
 
 EXPOSE 8080 8009
-ENTRYPOINT ["/docker-entrypoint.sh"]
 VOLUME ["/etc/geoserver", "/var/log/geoserver"]
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["catalina.sh", "run"]
