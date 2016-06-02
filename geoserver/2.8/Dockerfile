@@ -7,12 +7,14 @@ ENV GEOSERVER_ZIP_URL http://downloads.sourceforge.net/project/geoserver/GeoServ
 ENV MARLIN_URL_BASE https://github.com/bourgesl/marlin-renderer/releases/download/v$MARLIN_VERSION
 ENV GS_PLUGIN_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions
 
+# Download GeoServer web app and remove GeoWebCache from lib
 RUN set -x \
 	&& curl -fSL "$GEOSERVER_ZIP_URL" -o geoserver-war.zip \
 	&& yum install -y unzip \
 	&& unzip geoserver-war.zip geoserver.war \
 	&& mkdir -p $CATALINA_HOME/webapps/geoserver \
 	&& unzip geoserver.war -d $CATALINA_HOME/webapps/geoserver \
+	&& rm $CATALINA_HOME/webapps/geoserver/WEB-INF/lib/*gwc*.jar \
 	&& rm geoserver-war.zip \
 	&& rm geoserver.war
 
@@ -22,8 +24,10 @@ RUN curl -fSL "$MARLIN_URL_BASE"/marlin-$MARLIN_VERSION-Unsafe.jar -o $CATALINA_
 
 ENV MARLIN_OPTS "-Xbootclasspath/p:$CATALINA_HOME/lib/marlin-$MARLIN_VERSION-Unsafe-sun-java2d.jar -Xbootclasspath/a:$CATALINA_HOME/lib/marlin-$MARLIN_VERSION-Unsafe.jar -Dsun.java2d.renderer=org.marlin.pisces.PiscesRenderingEngine"
 ENV CATALINA_OPTS "$MARLIN_OPTS -server -XX:NewRatio=2 -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:+UseParallelGC -XX:+UseParallelOldGC -XX:+AggressiveOpts -Duser.timezone=GMT -Djava.awt.headless=true $GS_OPTS"
+ENV GEOSERVER_DATA_DIR /etc/geoserver
+ENV GEOSERVER_LOG_DIR /var/log/geoserver
 
-ENV GS_PLUGIN_LIST control-flow-plugin csw-plugin wps-plugin
+ENV GS_PLUGIN_LIST control-flow-plugin csw-plugin
 
 RUN for PLUGIN in $GS_PLUGIN_LIST; \
     do curl -L $GS_PLUGIN_URL/geoserver-$GEOSERVER_VERSION-$PLUGIN.zip > plugin.zip \
@@ -32,7 +36,9 @@ RUN for PLUGIN in $GS_PLUGIN_LIST; \
     done
 
 COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh \
+	&& mkdir -p $GEOSERVER_DATA_DIR \
+	&& mkdir -p $GEOSERVER_LOG_DIR
 
 # Standard instance memory requirement is going to be set at 2GiB
 ENV INSTANCE_MEMORY 2048
@@ -41,4 +47,5 @@ ENV OOM_KILL true
 
 EXPOSE 8080 8009
 ENTRYPOINT ["/docker-entrypoint.sh"]
+VOLUME ["/etc/geoserver", "/var/log/geoserver"]
 CMD ["catalina.sh", "run"]
