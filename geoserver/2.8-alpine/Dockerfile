@@ -1,4 +1,4 @@
-FROM appliedis/tomcat:8
+FROM appliedis/tomcat:8-alpine
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
 ENV GEOSERVER_VERSION 2.8.4
@@ -9,8 +9,8 @@ ENV GS_PLUGIN_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/$
 
 # Download GeoServer web app and remove GeoWebCache from lib
 RUN set -x \
+    && apk add --no-cache --update curl unzip sed findutils grep gawk \
 	&& curl -fSL "$GEOSERVER_ZIP_URL" -o geoserver-war.zip \
-	&& yum install -y unzip \
 	&& unzip geoserver-war.zip geoserver.war \
 	&& mkdir -p $CATALINA_HOME/webapps/geoserver \
 	&& unzip geoserver.war -d $CATALINA_HOME/webapps/geoserver \
