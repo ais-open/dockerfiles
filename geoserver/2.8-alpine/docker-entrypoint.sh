@@ -33,6 +33,20 @@ else
     sed -i 's|<proxyBaseUrl>.*</proxyBaseUrl>|<proxyBaseUrl>http://'$GEOSERVER_HOSTNAME'/geoserver</proxyBaseUrl>|g' global.xml
 fi
 
+cd $CATALINA_HOME/webapps/geoserver/WEB-INF/
+
+# If ENABLE_CORS is set, place in filter config
+if [ -n "$ENABLE_CORS" ] ; then
+    if grep -q '<filter-name>CorsFilter</filter-name>' web.xml; then
+        #do nothing
+        echo "CORS filter already enabled"
+    else
+        echo "Adding filter config to enable CORS"
+        sed -i 's|</web-app>| |g' web.xml
+        printf "<filter>\n <filter-name>CorsFilter</filter-name>\n <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>\n</filter>\n<filter-mapping>\n <filter-name>CorsFilter</filter-name>\n <url-pattern>/*</url-pattern>\n</filter-mapping>\n</web-app>" >> web.xml
+    fi
+fi
+
 cd $CATALINA_HOME
 
 exec /gosu-entrypoint.sh "$@"
