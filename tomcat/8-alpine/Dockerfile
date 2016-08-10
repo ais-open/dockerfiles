@@ -1,6 +1,10 @@
 FROM appliedis/java:8-alpine
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
+LABEL name="Tomcat 8" \
+    vendor="Applied Information Sciences" \
+    license="Apache v2.0"
+
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p "$CATALINA_HOME"

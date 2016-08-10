@@ -1,5 +1,9 @@
-FROM appliedis/alpine-gosu:3.4
+FROM appliedis/alpine-gosu:3.3
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
+
+LABEL name="Java 8" \
+    vendor="Applied Information Sciences" \
+    license="Apache v2.0"
 
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8

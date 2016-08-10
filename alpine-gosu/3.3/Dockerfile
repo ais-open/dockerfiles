@@ -1,6 +1,10 @@
 FROM alpine:3.3
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
+LABEL name="Alpine 3.3 with gosu entrypoint" \
+    vendor="Applied Information Sciences" \
+    license="Apache v2.0"
+
 COPY gosu-amd64 /usr/local/bin/gosu
 RUN chmod +x /usr/local/bin/gosu
 

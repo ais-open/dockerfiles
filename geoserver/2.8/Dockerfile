@@ -1,6 +1,10 @@
 FROM appliedis/tomcat:8
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
+LABEL name="GeoServer 2.8.4 with Marlin renderer" \
+    vendor="Applied Information Sciences" \
+    license="Apache v2.0"
+
 ENV GEOSERVER_VERSION 2.8.4
 ENV MARLIN_VERSION 0.7.3.3
 ENV GEOSERVER_ZIP_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip
