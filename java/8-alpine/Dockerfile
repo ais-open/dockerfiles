@@ -1,4 +1,4 @@
-FROM appliedis/alpine-gosu:3.3
+FROM appliedis/alpine-gosu:3.4
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
 LABEL name="Java 8" \
@@ -21,7 +21,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/jre
 ENV PATH $PATH:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin
 
 ENV JAVA_VERSION 8u92
-ENV JAVA_ALPINE_VERSION 8.92.14-r0
+ENV JAVA_ALPINE_VERSION 8.92.14-r1
 
 RUN set -x \
 	&& apk add --no-cache \
