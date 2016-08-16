@@ -13,7 +13,7 @@ ENV GS_PLUGIN_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/$
 
 # Download GeoServer web app and remove GeoWebCache from lib
 RUN set -x \
-    && apk add --no-cache --update curl unzip sed findutils grep gawk \
+    && apk add --no-cache --update curl unzip sed findutils grep gawk ttf-dejavu \
 	&& curl -fSL "$GEOSERVER_ZIP_URL" -o geoserver-war.zip \
 	&& unzip geoserver-war.zip geoserver.war \
 	&& mkdir -p $CATALINA_HOME/webapps/geoserver \
