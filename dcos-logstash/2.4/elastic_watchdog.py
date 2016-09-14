@@ -1,25 +1,48 @@
 import filecmp
 import json
 import os
+import time
+import traceback
+import urllib
 
 import requests
+from requests.exceptions import RequestException
 
-es_url = os.environ.get('ELASTICSEARCH_URL', 'http://elasticsearch.marathon.mesos:31105')
+ES_TASKS = '%s/v1/tasks' % os.getenv('ELASTICSEARCH_URL', 'http://elasticsearch.marathon.mesos:31105')
+SLEEP_TIME = float(os.getenv('SLEEP_TIME', 30))
+TEMPLATE_URI = os.getenv('TEMPLATE_URI', None)
 
-while True:
+CONF_FILE = '/opt/watchdog/logstash.conf'
 
-    response = requests.get('%s/v1/tasks' % es_url)
-    endpoints = [x['http_address'] for x in json.loads(response.text)]
+if TEMPLATE_URI:
+    print('Attempting template update from %s...' % TEMPLATE_URI)
+    urllib.urlretrieve(TEMPLATE_URI, '%s-template' % CONF_FILE)
+    print('Template update complete.')
 
-    print('endpoints found: %s' % json.dumps(endpoints))
-    conf_file = 'logstash.conf'
-    with open('%s-template' % conf_file) as in_conf:
+def update_endpoints(endpoints):
+    print('ElasticSearch endpoints found: %s' % json.dumps(endpoints))
+    with open('%s-template' % CONF_FILE) as in_conf:
         conf_string = in_conf.read()
         conf_string = conf_string.replace('_ES_HOSTS_', json.dumps(endpoints))
-        with open('%s_tmp' % conf_file, 'w') as out_conf:
+        with open('%s_tmp' % CONF_FILE, 'w') as out_conf:
             out_conf.write(conf_string)
 
-    if not (os.path.isfile(conf_file) and filecmp.cmp(conf_file, '%s_tmp' % conf_file)):
-        print('Elastic Search endpoint update detected. Applying new config...")
-        os.rename('%s_tmp' % conf_file, conf_file)
+    if not (os.path.isfile(CONF_FILE) and filecmp.cmp(CONF_FILE, '%s_tmp' % CONF_FILE)):
+        print('Elastic Search endpoint change detected. Applying new config...')
+        os.rename('%s_tmp' % CONF_FILE, CONF_FILE)
+    else:
+        print('No update needed. Present config is up-to-date.')
+
         
+
+# Loop endlessly monitoring Elasticsearch cluster. Supervisor will SIGKILL us if container stops
+while True:
+    try:
+        response = requests.get(ES_TASKS)
+        endpoints = [x['http_address'] for x in json.loads(response.text)]
+        update_endpoints(endpoints)
+    except RequestException:
+        print('Unable to get ElasticSearch tasks from %s' % ES_TASKS)
+        traceback.print_exc()
+
+    time.sleep(SLEEP_TIME)
