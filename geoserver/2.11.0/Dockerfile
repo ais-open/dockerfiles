@@ -8,7 +8,7 @@ LABEL name="GeoServer 2.11.0 with Marlin renderer" \
 ENV GEOSERVER_VERSION 2.11.0
 ENV MARLIN_VERSION 0.7.5
 ENV GEOSERVER_ZIP_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip
-ENV MARLIN_URL_BASE https://github.com/bourgesl/marlin-renderer/releases/download/v$MARLIN_VERSION
+ENV MARLIN_URL_BASE https://github.com/bourgesl/marlin-renderer/releases/download/v${MARLIN_VERSION}_2
 ENV GS_PLUGIN_URL http://downloads.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/extensions
 
 # Download GeoServer web app and remove GeoWebCache from lib
