@@ -38,7 +38,7 @@ if [ -z "$GEOSERVER_EXTENSION_TARBALL_URI" ] ; then
     echo "GEOSERVER_EXTENSION_TARBALL_URI not set. Leaving extension directory unchanged."
 else
     echo "Adding extensions found within tarball at $GEOSERVER_EXTENSION_TARBALL_URI..."
-    curl -L -k $GEOSERVER_EXTENSION_TARBALL_URI | tar -xzv -C $CATALINA_HOME/webapps/geoserver/WEB-INF/lib
+    curl -L -k $GEOSERVER_EXTENSION_TARBALL_URI > ext-temp && tar -xvf ext-temp -C $CATALINA_HOME/webapps/geoserver/WEB-INF/lib && rm ext-temp 
     chown -R $GOSU_USER $CATALINA_HOME/webapps/geoserver/WEB-INF/lib
 fi
 
