@@ -2,6 +2,13 @@
 FROM nvidia/cuda:7.0-cudnn4-devel-centos7
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
+LABEL \
+    VERSION="0.8.2-7.0" \
+    RUN="nvidia-docker run -it appliedis/theano-cuda:0.8.2:7.0 nvidia-smi" \
+    SOURCE="https://github.com/appliedis/dockerfiles" \
+    DESCRIPTION="Prepackaged theano with CUDA on CentOS" \
+    CLASSIFICATION="UNCLASSIFIED"
+
 # Install git, wget, python-dev, pip, BLAS + LAPACK and other dependencies
 RUN yum install -y epel-release && yum install -y \
   gcc-gfortran \
