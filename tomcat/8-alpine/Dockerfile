@@ -25,12 +25,16 @@ RUN set -ex; \
 	done
 
 ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.43
+ENV TOMCAT_VERSION 8.0.46
 
 # https://issues.apache.org/jira/browse/INFRA-8753?focusedCommentId=14735394#comment-14735394
 ENV TOMCAT_TGZ_URL https://www.apache.org/dyn/closer.cgi?action=download&filename=tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 # not all the mirrors actually carry the .asc files :'(
 ENV TOMCAT_ASC_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz.asc
+
+# if the version is outdated, we have to pull from the archive :/
+ENV TOMCAT_TGZ_FALLBACK_URL https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+ENV TOMCAT_ASC_FALLBACK_URL https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz.asc
 
 RUN set -x \
 	\
@@ -38,8 +42,14 @@ RUN set -x \
 		ca-certificates \
 		tar \
 		openssl \
-	&& wget -O tomcat.tar.gz "$TOMCAT_TGZ_URL" \
-	&& wget -O tomcat.tar.gz.asc "$TOMCAT_ASC_URL" \
+	&& { \
+		wget -O tomcat.tar.gz "$TOMCAT_TGZ_URL" \
+		|| wget -O tomcat.tar.gz "$TOMCAT_TGZ_FALLBACK_URL" \
+	; } \
+	&& { \
+		wget -O tomcat.tar.gz.asc "$TOMCAT_ASC_URL" \
+		|| wget -O tomcat.tar.gz.asc "$TOMCAT_ASC_FALLBACK_URL" \
+	; } \
 	&& gpg --batch --verify tomcat.tar.gz.asc tomcat.tar.gz \
 	&& tar -xvf tomcat.tar.gz --strip-components=1 \
 	&& rm bin/*.bat \
@@ -49,6 +59,8 @@ RUN set -x \
 	&& tar -xvf bin/tomcat-native.tar.gz -C "$nativeBuildDir" --strip-components=1 \
 	&& apk add --no-cache --virtual .native-build-deps \
 		apr-dev \
+		coreutils \
+		dpkg-dev dpkg \
 		gcc \
 		libc-dev \
 		make \
@@ -57,13 +69,15 @@ RUN set -x \
 	&& ( \
 		export CATALINA_HOME="$PWD" \
 		&& cd "$nativeBuildDir/native" \
+		&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
 		&& ./configure \
+			--build="$gnuArch" \
 			--libdir="$TOMCAT_NATIVE_LIBDIR" \
 			--prefix="$CATALINA_HOME" \
 			--with-apr="$(which apr-1-config)" \
 			--with-java-home="$(docker-java-home)" \
 			--with-ssl=yes \
-		&& make -j$(getconf _NPROCESSORS_ONLN) \
+		&& make -j "$(nproc)" \
 		&& make install \
 	) \
 	&& runDeps="$( \
@@ -76,7 +90,11 @@ RUN set -x \
 	&& apk add --virtual .tomcat-native-rundeps $runDeps \
 	&& apk del .fetch-deps .native-build-deps \
 	&& rm -rf "$nativeBuildDir" \
-	&& rm bin/tomcat-native.tar.gz
+	&& rm bin/tomcat-native.tar.gz \
+# sh removes env vars it doesn't support (ones with periods)
+# https://github.com/docker-library/tomcat/issues/77
+	&& apk add --no-cache bash \
+	&& find ./bin/ -name '*.sh' -exec sed -ri 's|^#!/bin/sh$|#!/usr/bin/env bash|' '{}' +
 
 # verify Tomcat Native is working properly
 RUN set -e \
