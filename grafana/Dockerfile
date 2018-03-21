@@ -18,5 +18,5 @@ VOLUME ["/var/lib/grafana", "/var/log/grafana", "/etc/grafana"]
 EXPOSE 3000
 
 COPY ./run.sh /run.sh
-
+RUN chmod 755 /run.sh
 ENTRYPOINT ["/run.sh"]
