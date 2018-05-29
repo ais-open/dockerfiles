@@ -66,4 +66,4 @@ fi
 
 cd $CATALINA_HOME
 
-exec "$@"
+exec /gosu-entrypoint.sh "$@"
