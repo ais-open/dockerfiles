@@ -21,9 +21,8 @@ cd $GEOSERVER_DATA_DIR
 sed -i 's|<location>logs/geoserver.log</location>|<location>/var/log/geoserver/geoserver.log</location>|g' logging.xml
 
 # Shim in proxyBaseUrl into config if it doesn't exist
-grep settings global.xml > /dev/null || \
-    grep proxyBaseUrl global.xml > /dev/null || \
-    sed -i 's|<global>|<global>\n  <settings>\n    <proxyBaseUrl></proxyBaseUrl>\n  </settings>|g' global.xml
+grep proxyBaseUrl global.xml > /dev/null || \
+    sed -i 's|<settings>|<settings>\n    <proxyBaseUrl></proxyBaseUrl>|g' global.xml
 
 # If GEOSERVER_HOSTNAME is set, place in proxyBaseUrl config
 if [ -z "$GEOSERVER_HOSTNAME" ] ; then
