@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:stretch-slim
 MAINTAINER Jonathan Meyer <jon@gisjedi.com>
 
 LABEL name="Node with Chrome for Headless Angular testing" \
